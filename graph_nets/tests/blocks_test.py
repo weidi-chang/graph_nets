@@ -30,6 +30,8 @@ import numpy as np
 import sonnet as snt
 import tensorflow as tf
 
+tf.enable_eager_execution()
+
 
 SMALL_GRAPH_1 = {
     "globals": [1.1, 1.2, 1.3, 1.4],
