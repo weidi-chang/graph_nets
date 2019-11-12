@@ -576,8 +576,8 @@ class GlobalBlock(nn.Module):
                use_edges=True,
                use_nodes=True,
                use_globals=True,
-               nodes_reducer=tf.unsorted_segment_sum,
-               edges_reducer=tf.unsorted_segment_sum,
+               nodes_reducer=scatter_add,
+               edges_reducer=scatter_add,
                name="global_block"):
     """Initializes the GlobalBlock module.
 

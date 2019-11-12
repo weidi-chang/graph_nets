@@ -27,10 +27,10 @@ import numpy as np
 import torch
 import torch_scatter
 
-from graph_nets import blocks_torch
-from graph_nets import graphs
-from graph_nets import utils_np
-from graph_nets import utils_torch
+import graph_nets.blocks_torch as blocks_torch
+import graph_nets.graphs as graphs
+import graph_nets.utils_np as utils_np
+import graph_nets.utils_torch as utils_torch
 
 
 SMALL_GRAPH_1 = {
@@ -66,7 +66,7 @@ SMALL_GRAPH_4 = {
 }
 
 
-class GraphModuleTest(unittest.TestCase, parameterized.TestCase):
+class GraphModuleTest(parameterized.TestCase):
     """Base class for all the tests in this file."""
 
     def setUp(self):
