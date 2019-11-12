@@ -178,7 +178,7 @@ class EdgesToGlobalsAggregator(nn.Module):
         per-graph features.
       name: The module name.
     """
-    super(EdgesToGlobalsAggregator, self).__init__(name=name)
+    super(EdgesToGlobalsAggregator, self).__init__()
     self._reducer = reducer
 
   def forward(self, graph):
@@ -215,7 +215,7 @@ class NodesToGlobalsAggregator(nn.Module):
         per-graph features.
       name: The module name.
     """
-    super(NodesToGlobalsAggregator, self).__init__(name=name)
+    super(NodesToGlobalsAggregator, self).__init__()
     self._reducer = reducer
 
   def forward(self, graph):
@@ -234,7 +234,7 @@ class _EdgesToNodesAggregator(nn.Module):
 
   def __init__(self, reducer, use_sent_edges=False,
                name="edges_to_nodes_aggregator"):
-    super(_EdgesToNodesAggregator, self).__init__(name=name)
+    super(_EdgesToNodesAggregator, self).__init__()
     self._reducer = reducer
     self._use_sent_edges = use_sent_edges
 
@@ -272,8 +272,7 @@ class SentEdgesToNodesAggregator(_EdgesToNodesAggregator):
     """
     super(SentEdgesToNodesAggregator, self).__init__(
         use_sent_edges=True,
-        reducer=reducer,
-        name=name)
+        reducer=reducer)
 
 
 class ReceivedEdgesToNodesAggregator(_EdgesToNodesAggregator):
@@ -301,7 +300,7 @@ class ReceivedEdgesToNodesAggregator(_EdgesToNodesAggregator):
       name: The module name.
     """
     super(ReceivedEdgesToNodesAggregator, self).__init__(
-        use_sent_edges=False, reducer=reducer, name=name)
+        use_sent_edges=False, reducer=reducer)
 
 
 def _unsorted_segment_reduction_or_zero(reducer, values, indices, num_groups):
@@ -398,7 +397,7 @@ class EdgeBlock(nn.Module):
     Raises:
       ValueError: When fields that are required are missing.
     """
-    super(EdgeBlock, self).__init__(name=name)
+    super(EdgeBlock, self).__init__()
 
     if not (use_edges or use_sender_nodes or use_receiver_nodes or use_globals):
       raise ValueError("At least one of use_edges, use_sender_nodes, "
@@ -500,7 +499,7 @@ class NodeBlock(nn.Module):
       ValueError: When fields that are required are missing.
     """
 
-    super(NodeBlock, self).__init__(name=name)
+    super(NodeBlock, self).__init__()
 
     if not (use_nodes or use_sent_edges or use_received_edges or use_globals):
       raise ValueError("At least one of use_received_edges, use_sent_edges, "
@@ -511,22 +510,21 @@ class NodeBlock(nn.Module):
     self._use_nodes = use_nodes
     self._use_globals = use_globals
 
-    with self._enter_variable_scope():
-      self._node_model = node_model_fn()
-      if self._use_received_edges:
-        if received_edges_reducer is None:
-          raise ValueError(
-              "If `use_received_edges==True`, `received_edges_reducer` "
-              "should not be None.")
-        self._received_edges_aggregator = ReceivedEdgesToNodesAggregator(
-            received_edges_reducer)
-      if self._use_sent_edges:
-        if sent_edges_reducer is None:
-          raise ValueError(
-              "If `use_sent_edges==True`, `sent_edges_reducer` "
-              "should not be None.")
-        self._sent_edges_aggregator = SentEdgesToNodesAggregator(
-            sent_edges_reducer)
+    self._node_model = node_model_fn()
+    if self._use_received_edges:
+      if received_edges_reducer is None:
+        raise ValueError(
+            "If `use_received_edges==True`, `received_edges_reducer` "
+            "should not be None.")
+      self._received_edges_aggregator = ReceivedEdgesToNodesAggregator(
+          received_edges_reducer)
+    if self._use_sent_edges:
+      if sent_edges_reducer is None:
+        raise ValueError(
+            "If `use_sent_edges==True`, `sent_edges_reducer` "
+            "should not be None.")
+      self._sent_edges_aggregator = SentEdgesToNodesAggregator(
+          sent_edges_reducer)
 
   def _build(self, graph):
     """Connects the node block.
@@ -604,7 +602,7 @@ class GlobalBlock(nn.Module):
       ValueError: When fields that are required are missing.
     """
 
-    super(GlobalBlock, self).__init__(name=name)
+    super(GlobalBlock, self).__init__()
 
     if not (use_nodes or use_edges or use_globals):
       raise ValueError("At least one of use_edges, "
@@ -614,20 +612,19 @@ class GlobalBlock(nn.Module):
     self._use_nodes = use_nodes
     self._use_globals = use_globals
 
-    with self._enter_variable_scope():
-      self._global_model = global_model_fn()
-      if self._use_edges:
-        if edges_reducer is None:
-          raise ValueError(
-              "If `use_edges==True`, `edges_reducer` should not be None.")
-        self._edges_aggregator = EdgesToGlobalsAggregator(
-            edges_reducer)
-      if self._use_nodes:
-        if nodes_reducer is None:
-          raise ValueError(
-              "If `use_nodes==True`, `nodes_reducer` should not be None.")
-        self._nodes_aggregator = NodesToGlobalsAggregator(
-            nodes_reducer)
+    self._global_model = global_model_fn()
+    if self._use_edges:
+      if edges_reducer is None:
+        raise ValueError(
+            "If `use_edges==True`, `edges_reducer` should not be None.")
+      self._edges_aggregator = EdgesToGlobalsAggregator(
+          edges_reducer)
+    if self._use_nodes:
+      if nodes_reducer is None:
+        raise ValueError(
+            "If `use_nodes==True`, `nodes_reducer` should not be None.")
+      self._nodes_aggregator = NodesToGlobalsAggregator(
+          nodes_reducer)
 
   def _build(self, graph):
     """Connects the global block.

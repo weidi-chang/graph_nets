@@ -461,7 +461,7 @@ class EdgeBlockTest(GraphModuleTest):
     def test_compatible_higher_rank_no_raise(self):
         """No exception should occur with higher ranks tensors."""
         input_graph = self._get_shaped_input_graph()
-        input_graph = input_graph.map(lambda v: tf.transpose(v, [0, 2, 1, 3]))  # TODO: change
+        input_graph = input_graph.map(lambda v: v.permute(0, 2, 1, 3))  # TODO: change
         network = blocks_torch.EdgeBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
         self._assert_build_and_run(network, input_graph)
@@ -481,8 +481,8 @@ class EdgeBlockTest(GraphModuleTest):
         """A exception should be raised if the inputs have incompatible shapes."""
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.replace(
-            **{field: tf.transpose(getattr(input_graph, field), [0, 2, 1, 3])})
-        network = blocks.EdgeBlock(
+            **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})
+        network = blocks_torch.EdgeBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]),
             use_edges=use_edges,
             use_receiver_nodes=use_receiver_nodes,
@@ -506,7 +506,7 @@ class EdgeBlockTest(GraphModuleTest):
         """No exception should occur if a differently shapped field is not used."""
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.replace(
-            **{field: tf.transpose(getattr(input_graph, field), [0, 2, 1, 3])})  # TODO: change
+            **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})  # TODO: change
         network = blocks_torch.EdgeBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]),  # TODO: change
             use_edges=use_edges,
@@ -695,7 +695,7 @@ class NodeBlockTest(GraphModuleTest):
     def test_compatible_higher_rank_no_raise(self):
         """No exception should occur with higher ranks tensors."""
         input_graph = self._get_shaped_input_graph()
-        input_graph = input_graph.map(lambda v: tf.transpose(v, [0, 2, 1, 3]))  # TODO: change
+        input_graph = input_graph.map(lambda v: v.permute(0, 2, 1, 3))  # TODO: change
         network = blocks_torch.NodeBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
         self._assert_build_and_run(network, input_graph)
@@ -715,7 +715,7 @@ class NodeBlockTest(GraphModuleTest):
         """A exception should be raised if the inputs have incompatible shapes."""
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.replace(
-            **{field: tf.transpose(getattr(input_graph, field), [0, 2, 1, 3])})  # TODO: change
+            **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})  # TODO: change
         network = blocks_torch.NodeBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]),  # TODO: change
             use_received_edges=use_received_edges,
@@ -740,7 +740,7 @@ class NodeBlockTest(GraphModuleTest):
         """No exception should occur if a differently shapped field is not used."""
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.replace(
-            **{field: tf.transpose(getattr(input_graph, field), [0, 2, 1, 3])}) # TODO: change
+            **{field: getattr(input_graph, field).permute(0, 2, 1, 3)}) # TODO: change
         network = blocks_torch.NodeBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
             use_received_edges=use_received_edges,
@@ -934,7 +934,7 @@ class GlobalBlockTest(GraphModuleTest):
     def test_compatible_higher_rank_no_raise(self):
         """No exception should occur with higher ranks tensors."""
         input_graph = self._get_shaped_input_graph()
-        input_graph = input_graph.map(lambda v: tf.transpose(v, [0, 2, 1, 3]))  # TODO: change
+        input_graph = input_graph.map(lambda v: v.permute(0, 2, 1, 3))  # TODO: change
         network = blocks_torch.GlobalBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
         self._assert_build_and_run(network, input_graph)
@@ -952,7 +952,7 @@ class GlobalBlockTest(GraphModuleTest):
         """A exception should be raised if the inputs have incompatible shapes."""
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.replace(
-            **{field: tf.transpose(getattr(input_graph, field), [0, 2, 1, 3])}) # TODO: change
+            **{field: getattr(input_graph, field).permute(0, 2, 1, 3)}) # TODO: change
         network = blocks_torch.GlobalBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
             use_edges=use_edges,
@@ -975,7 +975,7 @@ class GlobalBlockTest(GraphModuleTest):
         """No exception should occur if a differently shapped field is not used."""
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.replace(
-            **{field: tf.transpose(getattr(input_graph, field), [0, 2, 1, 3])})  # TODO: change
+            **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})  # TODO: change
         network = blocks_torch.GlobalBlock(
             functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
             use_edges=use_edges,
