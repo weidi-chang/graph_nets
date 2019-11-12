@@ -49,7 +49,7 @@ def _populate_number_fields(data_dict):
   for number_field, data_field in [[N_NODE, NODES], [N_EDGE, RECEIVERS]]:
     if dct.get(number_field) is None:
       if dct[data_field] is not None:
-        dct[number_field] = dct[data_field].size()[0]
+        dct[number_field] = torch.tensor(dct[data_field].size()[0], dtype=torch.int32)
       else:
         dct[number_field] = torch.tensor(0, dtype=torch.int32)
   return dct
@@ -76,7 +76,7 @@ def _to_compatible_data_dicts(data_dicts):
                 result[k] = None
             else:
                 dtype = torch.int32 if k in [SENDERS, RECEIVERS, N_NODE, N_EDGE] else None
-                result[k] = torch.tensor(v, dtype)
+                result[k] = torch.tensor(v, dtype=dtype)
         results.append(result)
     return results
 
