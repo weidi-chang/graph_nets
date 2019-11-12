@@ -305,12 +305,12 @@ class ReceivedEdgesToNodesAggregator(_EdgesToNodesAggregator):
 
 def _unsorted_segment_reduction_or_zero(reducer, values, indices, num_groups):
   """Common code for unsorted_segment_{min,max}_or_zero (below)."""
-  reduced = reducer(values, indices, dim_size=num_groups) # TODO: Need a case for max and min (argmin/argmax return)
-  present_indices = scatter_max(torch.ones(indices.shape, dtype=reduced.dtype),
-      indices, dim_size=num_groups)
+  reduced, _ = reducer(values, indices.long(), dim=0, dim_size=num_groups) # TODO: Need a case for max and min (argmin/argmax return)
+  present_indices, _ = scatter_max(torch.ones(indices.shape, dtype=reduced.dtype),
+      indices.long(), dim_size=num_groups)
   present_indices = torch.clamp(present_indices, 0, 1)
   present_indices = torch.reshape(
-      present_indices, [num_groups] + [1] * (reduced.shape.ndims - 1)) # TODO: Recheck shape
+      present_indices, [num_groups] + [1] * (len(reduced.shape) - 1)) # TODO: Recheck shape
   reduced *= present_indices
   return reduced
 
