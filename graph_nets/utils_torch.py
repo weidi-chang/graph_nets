@@ -96,8 +96,8 @@ def _compute_stacked_offsets(sizes, repeats):
         A 1D `Tensor` containing the index offset per graph.
       """
     sizes = torch.tensor(sizes[:-1]).type(torch.int32)
-    offset_values = torch.cumsum(torch.cat([[0], sizes], 0), dim=0)
-    return torch.repeat_interleave(offset_values, repeats)
+    offset_values = torch.cumsum(torch.cat([torch.zeros(1).int(), sizes], 0), dim=0)
+    return torch.repeat_interleave(offset_values, repeats.long())
 
 
 def _concatenate_data_dicts(data_dicts):
@@ -141,8 +141,8 @@ def _concatenate_data_dicts(data_dicts):
     # Add offsets to the receiver and sender indices.
     if dct[RECEIVERS] is not None:
         offset = _compute_stacked_offsets(dct[N_NODE], dct[N_EDGE])
-        dct[RECEIVERS] += offset
-        dct[SENDERS] += offset
+        dct[RECEIVERS] += offset.int()
+        dct[SENDERS] += offset.int()
 
     return dct
 
@@ -179,6 +179,3 @@ def data_dicts_to_graphs_tuple(data_dicts):
 
     data_dicts = _to_compatible_data_dicts(data_dicts)
     return graphs.GraphsTuple(**_concatenate_data_dicts(data_dicts))
-
-
-
