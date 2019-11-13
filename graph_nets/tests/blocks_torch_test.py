@@ -1030,7 +1030,7 @@ class CommonBlockTests(GraphModuleTest):
     def test_dynamic_batch_sizes(self, block_constructor):
         """Checks that all batch sizes are as expected through a GraphNetwork."""
         input_graph = self._get_input_graph()
-        placeholders = input_graph.map(lambda field: field.unsqueze(0), graphs.ALL_FIELDS)
+        placeholders = input_graph.map(lambda field: field.unsqueeze(0), graphs.ALL_FIELDS)
         model = block_constructor(
             functools.partial(snt.nets.MLP, output_sizes=[10])) # TODO: change
 
