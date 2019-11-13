@@ -130,7 +130,7 @@ def broadcast_sender_nodes_to_edges(
     ValueError: If either `graph.nodes` or `graph.senders` is `None`.
   """
   _validate_broadcasted_graph(graph, NODES, SENDERS)
-  return graph_nodes[graph_senders] # TODO: Double check this is proper, think tf.gather becomes simple indexing
+  return graph.nodes[graph.senders] # TODO: Double check this is proper, think tf.gather becomes simple indexing
 
 
 def broadcast_receiver_nodes_to_edges(
