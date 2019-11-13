@@ -185,7 +185,7 @@ class EdgesToGlobalsAggregator(nn.Module):
     _validate_graph(graph, (EDGES,),
                     additional_message="when aggregating from edges.")
     num_graphs = graph.n_node.shape[0] # TODO: Check w/ tests
-    graph_index = torch.range(num_graphs)
+    graph_index = torch.arange(num_graphs)
     indices = torch.repeat_interleave(graph_index, graph.n_edge, dim=0)
     # TODO: indices might require casting
     return self._reducer(graph.edges, indices, dim_size=num_graphs) # TODO: This call is probably wrong
@@ -223,7 +223,7 @@ class NodesToGlobalsAggregator(nn.Module):
                     additional_message="when aggregating from nodes.")
     num_graphs = graph.n_node.shape[0] # TODO: Check w/ tests
 
-    graph_index = torch.range(num_graphs)
+    graph_index = torch.arange(num_graphs)
     indices = torch.repeat_interleave(graph_index, graph.n_node, dim=0)
 
     return self._reducer(graph.nodes, indices, dim_size=num_graphs)

@@ -49,9 +49,9 @@ def _populate_number_fields(data_dict):
   for number_field, data_field in [[N_NODE, NODES], [N_EDGE, RECEIVERS]]:
     if dct.get(number_field) is None:
       if dct[data_field] is not None:
-        dct[number_field] = torch.tensor(dct[data_field].size()[0], dtype=torch.int32)
+        dct[number_field] = torch.tensor(dct[data_field].size()[0], dtype=torch.int64)
       else:
-        dct[number_field] = torch.tensor(0, dtype=torch.int32)
+        dct[number_field] = torch.tensor(0, dtype=torch.int64)
   return dct
 
 
@@ -95,8 +95,8 @@ def _compute_stacked_offsets(sizes, repeats):
       Returns:
         A 1D `Tensor` containing the index offset per graph.
       """
-    sizes = torch.tensor(sizes[:-1]).type(torch.int32)
-    offset_values = torch.cumsum(torch.cat([torch.zeros(1).int(), sizes], 0), dim=0)
+    sizes = torch.tensor(sizes[:-1]).type(torch.long)
+    offset_values = torch.cumsum(torch.cat([torch.zeros(1).long(), sizes], 0), dim=0)
     return torch.repeat_interleave(offset_values, repeats.long())
 
 
