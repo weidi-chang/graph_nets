@@ -96,6 +96,9 @@ class GraphModuleTest(parameterized.TestCase):
         # No error at construction time.
         output = network(input_graph)
 
+    def assertNDArrayNear(self, array1, array2, tolerance):
+        self.assertTrue(np.linalg.norm(array1 - array2) < tolerance)
+
 
 BROADCAST_GLOBAL_TO_EDGES = [
     [1.1, 1.2, 1.3, 1.4],
@@ -233,6 +236,7 @@ class ReducersTest(GraphModuleTest):
 
         self.assertNDArrayNear(
             np.array(expected_values, dtype=np.float32), reduced_out, err=1e-4)
+
 
 
 SEGMENT_SUM_EDGES_TO_GLOBALS = [
