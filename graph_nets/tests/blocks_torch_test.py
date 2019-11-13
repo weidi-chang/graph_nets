@@ -25,6 +25,7 @@ import unittest
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch_scatter
 
 import graph_nets.blocks_torch as blocks_torch
@@ -65,6 +66,19 @@ SMALL_GRAPH_4 = {
     "receivers": [1, 1],
 }
 
+
+class MLP(nn.Module):
+    def __init__(self, output_sizes):
+        self.output_sizes = output_sizes
+        self.mlp = None
+
+    def forward(self, input):
+        if self.mlp is None:
+            layers = [nn.Linear(input.shape[1], self.output_sizes[0])]
+            for i in range(1, len(output_sizes)):
+                layers.append(nn.Linear(self.output_sizes[i-1], self.output_sizes[i]))
+            self.mlp = nn.Sequential(layers)
+        return self.mlp(input)
 
 class GraphModuleTest(parameterized.TestCase):
     """Base class for all the tests in this file."""
@@ -431,7 +445,7 @@ class EdgeBlockTest(GraphModuleTest):
         input_graph = self._get_input_graph()
 
         edge_block = blocks_torch.EdgeBlock(
-            edge_model_fn=functools.partial(snt.nets.MLP,  # TODO: change
+            edge_model_fn=functools.partial(MLP,  # TODO: change
                                             output_sizes=[output_size]),
             use_edges=use_edges,
             use_receiver_nodes=use_receiver_nodes,
@@ -646,7 +660,7 @@ class NodeBlockTest(GraphModuleTest):
         input_graph = self._get_input_graph()
 
         node_block = blocks_torch.NodeBlock(
-            node_model_fn=functools.partial(snt.nets.MLP,
+            node_model_fn=functools.partial(MLP,
                                             output_sizes=[output_size]),
             use_received_edges=use_received_edges,
             use_sent_edges=use_sent_edges,
@@ -876,7 +890,7 @@ class GlobalBlockTest(GraphModuleTest):
         input_graph = self._get_input_graph()
 
         global_block = blocks_torch.GlobalBlock(
-            global_model_fn=functools.partial(snt.nets.MLP,   # TODO: change
+            global_model_fn=functools.partial(MLP,   # TODO: change
                                               output_sizes=[output_size]),
             use_edges=use_edges,
             use_nodes=use_nodes,
@@ -1032,7 +1046,7 @@ class CommonBlockTests(GraphModuleTest):
         input_graph = self._get_input_graph()
         placeholders = input_graph.map(lambda field: field.unsqueeze(0), graphs.ALL_FIELDS)
         model = block_constructor(
-            functools.partial(snt.nets.MLP, output_sizes=[10])) # TODO: change
+            functools.partial(MLP, output_sizes=[10])) # TODO: change
 
         output = model(placeholders)
         other_input_graph = utils_np.data_dicts_to_graphs_tuple(
@@ -1057,7 +1071,7 @@ class CommonBlockTests(GraphModuleTest):
         input_graph = input_graph.map(lambda v: v.type(indices_dtype),
                                       ["receivers", "senders"])
         model = block_constructor(
-            functools.partial(snt.nets.MLP, output_sizes=[10]))
+            functools.partial(MLP, output_sizes=[10]))
         output = model(input_graph)
         for field in ["nodes", "globals", "edges"]:
             self.assertEqual(data_dtype, getattr(output, field).dtype)
