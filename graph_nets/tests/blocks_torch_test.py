@@ -80,6 +80,18 @@ class MLP(nn.Module):
             self.mlp = nn.Sequential(layers)
         return self.mlp(input)
 
+class Conv2D(nn.Module):
+    def __init__(self, output_channels, kernel_shape):
+        self.output_channels = output_channels
+        self.kernel_shape = kernel_shape
+        self.conv2d = None
+
+    def forward(self, input):
+        if self.conv2d is None:
+            self.conv2d = nn.Conv2d(input.shape[1], self.output_channels, self.kernel_shape)
+        return self.conv2d(input)
+
+
 class GraphModuleTest(parameterized.TestCase):
     """Base class for all the tests in this file."""
 
@@ -484,7 +496,7 @@ class EdgeBlockTest(GraphModuleTest):
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.map(lambda v: v.permute(0, 2, 1, 3))  # TODO: change
         network = blocks_torch.EdgeBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
         self._assert_build_and_run(network, input_graph)
 
     @parameterized.named_parameters(
@@ -504,7 +516,7 @@ class EdgeBlockTest(GraphModuleTest):
         input_graph = input_graph.replace(
             **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})
         network = blocks_torch.EdgeBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]),
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]),
             use_edges=use_edges,
             use_receiver_nodes=use_receiver_nodes,
             use_sender_nodes=use_sender_nodes,
@@ -529,7 +541,7 @@ class EdgeBlockTest(GraphModuleTest):
         input_graph = input_graph.replace(
             **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})  # TODO: change
         network = blocks_torch.EdgeBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]),  # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]),  # TODO: change
             use_edges=use_edges,
             use_receiver_nodes=use_receiver_nodes,
             use_sender_nodes=use_sender_nodes,
@@ -718,7 +730,7 @@ class NodeBlockTest(GraphModuleTest):
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.map(lambda v: v.permute(0, 2, 1, 3))  # TODO: change
         network = blocks_torch.NodeBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
         self._assert_build_and_run(network, input_graph)
 
     @parameterized.named_parameters(
@@ -738,7 +750,7 @@ class NodeBlockTest(GraphModuleTest):
         input_graph = input_graph.replace(
             **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})  # TODO: change
         network = blocks_torch.NodeBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]),  # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]),  # TODO: change
             use_received_edges=use_received_edges,
             use_sent_edges=use_sent_edges,
             use_nodes=use_nodes,
@@ -763,7 +775,7 @@ class NodeBlockTest(GraphModuleTest):
         input_graph = input_graph.replace(
             **{field: getattr(input_graph, field).permute(0, 2, 1, 3)}) # TODO: change
         network = blocks_torch.NodeBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
             use_received_edges=use_received_edges,
             use_sent_edges=use_sent_edges,
             use_nodes=use_nodes,
@@ -957,7 +969,7 @@ class GlobalBlockTest(GraphModuleTest):
         input_graph = self._get_shaped_input_graph()
         input_graph = input_graph.map(lambda v: v.permute(0, 2, 1, 3))  # TODO: change
         network = blocks_torch.GlobalBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]))  # TODO: change
         self._assert_build_and_run(network, input_graph)
 
     @parameterized.named_parameters(
@@ -975,7 +987,7 @@ class GlobalBlockTest(GraphModuleTest):
         input_graph = input_graph.replace(
             **{field: getattr(input_graph, field).permute(0, 2, 1, 3)}) # TODO: change
         network = blocks_torch.GlobalBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
             use_edges=use_edges,
             use_nodes=use_nodes,
             use_globals=use_globals
@@ -998,7 +1010,7 @@ class GlobalBlockTest(GraphModuleTest):
         input_graph = input_graph.replace(
             **{field: getattr(input_graph, field).permute(0, 2, 1, 3)})  # TODO: change
         network = blocks_torch.GlobalBlock(
-            functools.partial(snt.Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
+            functools.partial(Conv2D, output_channels=10, kernel_shape=[3, 3]), # TODO: change
             use_edges=use_edges,
             use_nodes=use_nodes,
             use_globals=use_globals
