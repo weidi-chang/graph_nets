@@ -1018,11 +1018,6 @@ class GlobalBlockTest(GraphModuleTest):
                 nodes_reducer=nodes_reducer)
 
 
-def _mask_leading_dimension(tensor):
-    return tf.placeholder_with_default(tensor,
-                                       [None] + tensor.get_shape().as_list()[1:])  # TODO: Change
-
-
 class CommonBlockTests(GraphModuleTest):
     """Tests that are common to the EdgeBlock, NodeBlock and GlobalBlock."""
 
@@ -1035,16 +1030,16 @@ class CommonBlockTests(GraphModuleTest):
     def test_dynamic_batch_sizes(self, block_constructor):
         """Checks that all batch sizes are as expected through a GraphNetwork."""
         input_graph = self._get_input_graph()
-        placeholders = input_graph.map(_mask_leading_dimension, graphs.ALL_FIELDS)
+        placeholders = input_graph.map(lambda field: field.unsqueze(0), graphs.ALL_FIELDS)
         model = block_constructor(
             functools.partial(snt.nets.MLP, output_sizes=[10])) # TODO: change
-        output = model(placeholders)
 
+        output = model(placeholders)
         other_input_graph = utils_np.data_dicts_to_graphs_tuple(
             [SMALL_GRAPH_1, SMALL_GRAPH_2])
-        actual = sess.run(output, {placeholders: other_input_graph})
+
         for k, v in other_input_graph._asdict().items():
-            self.assertEqual(v.shape[0], getattr(actual, k).shape[0])
+            self.assertEqual(v.shape[0], getattr(output, k).shape[0])
 
     @parameterized.named_parameters(
         ("float64 data, edge block", torch.float64, torch.int32, blocks_torch.EdgeBlock),
