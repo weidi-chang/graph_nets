@@ -112,10 +112,10 @@ class GraphModuleTest(parameterized.TestCase):
             nodes=torch.zeros([3, 4, 5, 11], dtype=torch.float32),
             edges=torch.zeros([5, 4, 5, 12], dtype=torch.float32),
             globals=torch.zeros([2, 4, 5, 13], dtype=torch.float32),
-            receivers=torch.range(0, 5, dtype=torch.int32) // 3,
-            senders=torch.range(0, 5, dtype=torch.int32) % 3,
-            n_node=torch.tensor([2, 1], dtype=torch.int32),
-            n_edge=torch.tensor([3, 2], dtype=torch.int32),
+            receivers=torch.range(0, 5, dtype=torch.int64) // 3,
+            senders=torch.range(0, 5, dtype=torch.int64) % 3,
+            n_node=torch.tensor([2, 1], dtype=torch.int64),
+            n_edge=torch.tensor([3, 2], dtype=torch.int64),
         )
 
     def _assert_build_and_run(self, network, input_graph):
@@ -216,7 +216,7 @@ class BroadcastersTest(GraphModuleTest):
     def test_missing_field_raises_exception(self, broadcaster, none_fields):
         """Test that an error is raised if a required field is `None`."""
         input_graph = self._get_input_graph(none_fields)
-        with self.assertRaisesRegexp(
+        with self.assertRaisesRegex(
                 ValueError, "field cannot be None when broadcasting"):
             broadcaster(input_graph)
 
@@ -256,9 +256,9 @@ class ReducersTest(GraphModuleTest):
         input_indices_np = np.array([1, 2, 2, 3, 3, 3, 4, 4, 5, 4], dtype=np.int32)
         num_groups_np = np.array(7, dtype=np.int32)
 
-        input_indices = torch.tensor(input_indices_np, dtype=torch.int32)
-        input_values = torch.tensor(input_values_np, dtype=torch.float32)
-        num_groups = torch.tensor(num_groups_np, dtype=torch.int32)
+        input_indices = torch.tensor(input_indices_np, dtype=torch.int64)
+        input_values = torch.tensor(input_values_np, dtype=torch.float64)
+        num_groups = torch.tensor(num_groups_np, dtype=torch.int64)
 
         reduced_out = reducer(input_values, input_indices, num_groups)
         reduced_out = reduced_out.numpy()
@@ -431,8 +431,8 @@ class EdgeBlockTest(GraphModuleTest):
             model_inputs.append(blocks_torch.broadcast_globals_to_edges(input_graph))
 
         model_inputs = torch.cat(model_inputs, dim=-1)
-        self.assertEqual(input_graph.nodes, output_graph.nodes)
-        self.assertEqual(input_graph.globals, output_graph.globals)
+        self.assertNDArrayNear(input_graph.nodes.numpy(), output_graph.nodes.numpy(), err=1e-4)
+        self.assertNDArrayNear(input_graph.globals.numpy(), output_graph.globals.numpy(), err=1e-4)
 
         expected_output_edges = model_inputs.numpy() * self._scale
         self.assertNDArrayNear(
@@ -576,8 +576,8 @@ class EdgeBlockTest(GraphModuleTest):
             model_inputs.append(blocks_torch.broadcast_globals_to_edges(input_graph))
 
         model_inputs = torch.cat(model_inputs, dim=-1)
-        self.assertEqual(input_graph.nodes, output_graph.nodes)
-        self.assertEqual(input_graph.globals, output_graph.globals)
+        self.assertNDArrayNear(input_graph.nodes.numpy(), output_graph.nodes.numpy(), err=1e-4)
+        self.assertNDArrayNear(input_graph.globals.numpy(), output_graph.globals.numpy(), err=1e-4)
 
         expected_output_edges = model_inputs.numpy() * self._scale
         self.assertNDArrayNear(expected_output_edges, output_graph.edges.numpy(), err=1e-4)
@@ -814,7 +814,7 @@ class NodeBlockTest(GraphModuleTest):
             model_inputs.append(blocks_torch.broadcast_globals_to_nodes(input_graph))
 
         model_inputs = torch.cat(model_inputs, dim=-1)  # TODO: Check semantics of dim=-1
-        self.assertEqual(input_graph.edges, output_graph.edges)
+        self.assertEqual(input_graph.edges.numpy, output_graph.edges)
         self.assertEqual(input_graph.globals, output_graph.globals)
 
         expected_output_nodes = model_inputs.numpy() * self._scale
@@ -1068,11 +1068,11 @@ class CommonBlockTests(GraphModuleTest):
             self.assertEqual(v.shape[0], getattr(output, k).shape[0])
 
     @parameterized.named_parameters(
-        ("float64 data, edge block", torch.float64, torch.int32, blocks_torch.EdgeBlock),
+        ("float64 data, edge block", torch.float64, torch.int64, blocks_torch.EdgeBlock),
         ("int64 indices, edge block", torch.float32, torch.int64, blocks_torch.EdgeBlock),
-        ("float64 data, node block", torch.float64, torch.int32, blocks_torch.NodeBlock),
+        ("float64 data, node block", torch.float64, torch.int64, blocks_torch.NodeBlock),
         ("int64 indices, node block", torch.float32, torch.int64, blocks_torch.NodeBlock),
-        ("float64 data, global block", torch.float64, torch.int32, blocks_torch.GlobalBlock),
+        ("float64 data, global block", torch.float64, torch.int64, blocks_torch.GlobalBlock),
         ("int64 indices, global block", torch.float32, torch.int64, blocks_torch.GlobalBlock),
     )
     def test_dtypes(self, data_dtype, indices_dtype, block_constructor):

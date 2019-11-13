@@ -444,7 +444,7 @@ class EdgeBlock(nn.Module):
 
     if self._use_globals:
       edges_to_collect.append(broadcast_globals_to_edges(graph))
-    collected_edges = torch.cat(edges_to_collect, dim=0) # TODO: Recheck dim, might be wrong
+    collected_edges = torch.cat(edges_to_collect, dim=1) # TODO: Recheck dim, might be wrong
     updated_edges = self._edge_model(collected_edges)
     return graph.replace(edges=updated_edges)
 
@@ -553,7 +553,7 @@ class NodeBlock(nn.Module):
     if self._use_globals:
       nodes_to_collect.append(broadcast_globals_to_nodes(graph))
 
-    collected_nodes = torch.cat(nodes_to_collect, dim=0) # TODO: Same as above
+    collected_nodes = torch.cat(nodes_to_collect, dim=1) # TODO: Same as above
     updated_nodes = self._node_model(collected_nodes)
     return graph.replace(nodes=updated_nodes)
 
@@ -651,6 +651,6 @@ class GlobalBlock(nn.Module):
       _validate_graph(graph, (GLOBALS,), "when use_globals == True")
       globals_to_collect.append(graph.globals)
 
-    collected_globals = torch.cat(globals_to_collect, dim=0)
+    collected_globals = torch.cat(globals_to_collect, dim=1)
     updated_globals = self._global_model(collected_globals)
     return graph.replace(globals=updated_globals)
