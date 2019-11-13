@@ -302,20 +302,20 @@ class ReceivedEdgesToNodesAggregator(_EdgesToNodesAggregator):
         use_sent_edges=False, reducer=reducer)
 
 
-def _unsorted_segment_reduction_or_zero(reducer, values, indices, num_groups):
+def _unsorted_segment_reduction_or_zero(reducer, values, indices, dim_size, dim=0):
   """Common code for unsorted_segment_{min,max}_or_zero (below)."""
-  reduced, _ = reducer(values, indices.long(), dim=0, dim_size=num_groups) # TODO: Need a case for max and min (argmin/argmax return)
+  reduced, _ = reducer(values, indices.long(), dim=dim, dim_size=dim_size) # TODO: Need a case for max and min (argmin/argmax return)
   present_indices, _ = scatter_max(torch.ones(indices.shape, dtype=reduced.dtype),
-      indices.long(), dim_size=num_groups)
+      indices.long(), dim_size=dim_size)
   present_indices = torch.clamp(present_indices, 0, 1)
   present_indices = torch.reshape(
-      present_indices, [num_groups] + [1] * (len(reduced.shape) - 1)) # TODO: Recheck shape
+      present_indices, [dim_size] + [1] * (len(reduced.shape) - 1)) # TODO: Recheck shape
   reduced *= present_indices
   return reduced
 
 
-def unsorted_segment_min_or_zero(values, indices, num_groups,
-                                 name="unsorted_segment_min_or_zero"):
+def unsorted_segment_min_or_zero(values, indices, dim_size,
+                                 name="unsorted_segment_min_or_zero", dim=0):
   """Aggregates information using elementwise min.
 
   Segments with no elements are given a "min" of zero instead of the most
@@ -332,11 +332,11 @@ def unsorted_segment_min_or_zero(values, indices, num_groups,
     A `Tensor` of the same type as `values`.
   """
   return _unsorted_segment_reduction_or_zero(
-      scatter_min, values, indices, num_groups)
+      scatter_min, values, indices, dim_size, dim=dim)
 
 
-def unsorted_segment_max_or_zero(values, indices, num_groups,
-                                 name="unsorted_segment_max_or_zero"):
+def unsorted_segment_max_or_zero(values, indices, dim_size,
+                                 name="unsorted_segment_max_or_zero", dim=0):
   """Aggregates information using elementwise max.
 
   Segments with no elements are given a "max" of zero instead of the most
@@ -353,7 +353,7 @@ def unsorted_segment_max_or_zero(values, indices, num_groups,
     A `Tensor` of the same type as `values`.
   """
   return _unsorted_segment_reduction_or_zero(
-      scatter_max, values, indices, num_groups)
+      scatter_max, values, indices, dim_size, dim=dim)
 
 
 class EdgeBlock(nn.Module):
@@ -444,7 +444,7 @@ class EdgeBlock(nn.Module):
 
     if self._use_globals:
       edges_to_collect.append(broadcast_globals_to_edges(graph))
-    collected_edges = torch.cat(edges_to_collect, dim=1) # TODO: Recheck dim, might be wrong
+    collected_edges = torch.cat(edges_to_collect, dim=-1) # TODO: Recheck dim, might be wrong
     updated_edges = self._edge_model(collected_edges)
     return graph.replace(edges=updated_edges)
 
@@ -553,7 +553,7 @@ class NodeBlock(nn.Module):
     if self._use_globals:
       nodes_to_collect.append(broadcast_globals_to_nodes(graph))
 
-    collected_nodes = torch.cat(nodes_to_collect, dim=1) # TODO: Same as above
+    collected_nodes = torch.cat(nodes_to_collect, dim=-1) # TODO: Same as above
     updated_nodes = self._node_model(collected_nodes)
     return graph.replace(nodes=updated_nodes)
 
@@ -651,6 +651,6 @@ class GlobalBlock(nn.Module):
       _validate_graph(graph, (GLOBALS,), "when use_globals == True")
       globals_to_collect.append(graph.globals)
 
-    collected_globals = torch.cat(globals_to_collect, dim=1)
+    collected_globals = torch.cat(globals_to_collect, dim=-1)
     updated_globals = self._global_model(collected_globals)
     return graph.replace(globals=updated_globals)
