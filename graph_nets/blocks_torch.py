@@ -382,7 +382,7 @@ class EdgeBlock(nn.Module):
         a `Tensor` (of concatenated input features for each edge) and return a
         `Tensor` (of output features for each edge). Typically, this module
         would input and output `Tensor`s of rank 2, but it may also be input or
-        output larger ranks. See the `_build` method documentation for more
+        output larger ranks. See the `forward` method documentation for more
         details on the acceptable inputs to this module in that case.
       use_edges: (bool, default=True). Whether to condition on edge attributes.
       use_receiver_nodes: (bool, default=True). Whether to condition on receiver
@@ -409,7 +409,7 @@ class EdgeBlock(nn.Module):
 
     self._edge_model = edge_model_fn()
 
-  def _build(self, graph):
+  def forward(self, graph):
     """Connects the edge block.
 
     Args:
@@ -477,7 +477,7 @@ class NodeBlock(nn.Module):
         a `Tensor` (of concatenated input features for each node) and return a
         `Tensor` (of output features for each node). Typically, this module
         would input and output `Tensor`s of rank 2, but it may also be input or
-        output larger ranks. See the `_build` method documentation for more
+        output larger ranks. See the `forward` method documentation for more
         details on the acceptable inputs to this module in that case.
       use_received_edges: (bool, default=True) Whether to condition on
         aggregated edges received by each node.
@@ -525,7 +525,7 @@ class NodeBlock(nn.Module):
       self._sent_edges_aggregator = SentEdgesToNodesAggregator(
           sent_edges_reducer)
 
-  def _build(self, graph):
+  def forward(self, graph):
     """Connects the node block.
 
     Args:
@@ -585,7 +585,7 @@ class GlobalBlock(nn.Module):
         take a `Tensor` (of concatenated input features) and return a `Tensor`
         (the global output features). Typically, this module would input and
         output `Tensor`s of rank 2, but it may also input or output larger
-        ranks. See the `_build` method documentation for more details on the
+        ranks. See the `forward` method documentation for more details on the
         acceptable inputs to this module in that case.
       use_edges: (bool, default=True) Whether to condition on aggregated edges.
       use_nodes: (bool, default=True) Whether to condition on node attributes.
@@ -625,7 +625,7 @@ class GlobalBlock(nn.Module):
       self._nodes_aggregator = NodesToGlobalsAggregator(
           nodes_reducer)
 
-  def _build(self, graph):
+  def forward(self, graph):
     """Connects the global block.
 
     Args:
