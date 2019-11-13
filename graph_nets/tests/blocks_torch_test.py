@@ -127,6 +127,11 @@ class GraphModuleTest(parameterized.TestCase):
     def assertNDArrayNear(self, array1, array2, err):
         self.assertTrue(np.linalg.norm(array1 - array2) < err)
 
+    def assertEqual(self, first, second, msg=...) -> None:
+        if isinstance(first, torch.Tensor):
+            return self.assertTrue(first.equal(second), msg=msg)
+
+        return super().assertEqual(first, second, msg)
 
 BROADCAST_GLOBAL_TO_EDGES = [
     [1.1, 1.2, 1.3, 1.4],
@@ -433,8 +438,8 @@ class EdgeBlockTest(GraphModuleTest):
             model_inputs.append(blocks_torch.broadcast_globals_to_edges(input_graph))
 
         model_inputs = torch.cat(model_inputs, dim=-1)
-        self.assertNDArrayNear(input_graph.nodes.numpy(), output_graph.nodes.numpy(), err=1e-4)
-        self.assertNDArrayNear(input_graph.globals.numpy(), output_graph.globals.numpy(), err=1e-4)
+        self.assertEqual(input_graph.nodes, output_graph.nodes)
+        self.assertEqual(input_graph.globals, output_graph.globals)
 
         expected_output_edges = model_inputs.numpy() * self._scale
         self.assertNDArrayNear(
@@ -578,8 +583,8 @@ class EdgeBlockTest(GraphModuleTest):
             model_inputs.append(blocks_torch.broadcast_globals_to_edges(input_graph))
 
         model_inputs = torch.cat(model_inputs, dim=-1)
-        self.assertNDArrayNear(input_graph.nodes.numpy(), output_graph.nodes.numpy(), err=1e-4)
-        self.assertNDArrayNear(input_graph.globals.numpy(), output_graph.globals.numpy(), err=1e-4)
+        self.assertEqual(input_graph.nodes, output_graph.nodes)
+        self.assertEqual(input_graph.globals, output_graph.globals)
 
         expected_output_edges = model_inputs.numpy() * self._scale
         self.assertNDArrayNear(expected_output_edges, output_graph.edges.numpy(), err=1e-4)
@@ -816,7 +821,7 @@ class NodeBlockTest(GraphModuleTest):
             model_inputs.append(blocks_torch.broadcast_globals_to_nodes(input_graph))
 
         model_inputs = torch.cat(model_inputs, dim=-1)  # TODO: Check semantics of dim=-1
-        self.assertEqual(input_graph.edges.numpy, output_graph.edges)
+        self.assertEqual(input_graph.edges, output_graph.edges)
         self.assertEqual(input_graph.globals, output_graph.globals)
 
         expected_output_nodes = model_inputs.numpy() * self._scale
