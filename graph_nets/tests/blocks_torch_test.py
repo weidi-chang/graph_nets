@@ -233,7 +233,7 @@ class ReducersTest(GraphModuleTest):
         num_groups = torch.tensor(num_groups_np, dtype=torch.int32)
 
         reduced_out = reducer(input_values, input_indices, num_groups)
-
+        reduced_out = reduced_out.numpy()
         self.assertNDArrayNear(
             np.array(expected_values, dtype=np.float32), reduced_out, err=1e-4)
 
