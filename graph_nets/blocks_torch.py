@@ -188,7 +188,7 @@ class EdgesToGlobalsAggregator(nn.Module):
     graph_index = torch.arange(num_graphs)
     indices = torch.repeat_interleave(graph_index, graph.n_edge, dim=0)
     # TODO: indices might require casting
-    return self._reducer(graph.edges, indices, dim_size=num_graphs) # TODO: This call is probably wrong
+    return self._reducer(graph.edges, indices, dim=0, dim_size=num_graphs) # TODO: This call is probably wrong
 
 
 class NodesToGlobalsAggregator(nn.Module):
@@ -225,8 +225,7 @@ class NodesToGlobalsAggregator(nn.Module):
 
     graph_index = torch.arange(num_graphs)
     indices = torch.repeat_interleave(graph_index, graph.n_node, dim=0)
-
-    return self._reducer(graph.nodes, indices, dim_size=num_graphs)
+    return self._reducer(graph.nodes, indices, dim=0, dim_size=num_graphs)
 
 
 class _EdgesToNodesAggregator(nn.Module):
@@ -243,7 +242,7 @@ class _EdgesToNodesAggregator(nn.Module):
                     additional_message="when aggregating from edges.")
     num_nodes = torch.sum(graph.n_node)
     indices = graph.senders if self._use_sent_edges else graph.receivers
-    return self._reducer(graph.edges, indices, dim_size=num_nodes)
+    return self._reducer(graph.edges, indices, dim=0, dim_size=num_nodes)
 
 
 class SentEdgesToNodesAggregator(_EdgesToNodesAggregator):
