@@ -165,7 +165,7 @@ class BroadcastersTest(GraphModuleTest):
         input_graph = utils_torch.data_dicts_to_graphs_tuple(
             [SMALL_GRAPH_1, SMALL_GRAPH_2])
         input_graph = input_graph.map(
-            lambda v: torch.reshape(v, [v.get_shape().as_list()[0]] + [2, -1]))
+            lambda v: torch.reshape(v, [v.size()[0]] + [2, -1]))
         broadcasted_out = broadcaster(input_graph)
         broadcasted_out = broadcasted_out.numpy()
         self.assertNDArrayNear(
@@ -1038,11 +1038,10 @@ class CommonBlockTests(GraphModuleTest):
         model = block_constructor(
             functools.partial(snt.nets.MLP, output_sizes=[10])) # TODO: change
         output = model(placeholders)
-        with self.test_session() as sess:
-            sess.run(tf.global_variables_initializer())  # TODO: change
-            other_input_graph = utils_np.data_dicts_to_graphs_tuple(
-                [SMALL_GRAPH_1, SMALL_GRAPH_2])
-            actual = sess.run(output, {placeholders: other_input_graph})
+
+        other_input_graph = utils_np.data_dicts_to_graphs_tuple(
+            [SMALL_GRAPH_1, SMALL_GRAPH_2])
+        actual = sess.run(output, {placeholders: other_input_graph})
         for k, v in other_input_graph._asdict().items():
             self.assertEqual(v.shape[0], getattr(actual, k).shape[0])
 
