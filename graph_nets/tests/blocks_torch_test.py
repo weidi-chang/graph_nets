@@ -69,19 +69,21 @@ SMALL_GRAPH_4 = {
 
 class MLP(nn.Module):
     def __init__(self, output_sizes):
+        super(MLP, self).__init__()
         self.output_sizes = output_sizes
         self.mlp = None
 
     def forward(self, input):
         if self.mlp is None:
             layers = [nn.Linear(input.shape[1], self.output_sizes[0])]
-            for i in range(1, len(output_sizes)):
+            for i in range(1, len(self.output_sizes)):
                 layers.append(nn.Linear(self.output_sizes[i-1], self.output_sizes[i]))
-            self.mlp = nn.Sequential(layers)
+            self.mlp = nn.Sequential(*layers)
         return self.mlp(input)
 
 class Conv2D(nn.Module):
     def __init__(self, output_channels, kernel_shape):
+        super(Conv2D, self).__init__()
         self.output_channels = output_channels
         self.kernel_shape = kernel_shape
         self.conv2d = None
