@@ -305,6 +305,7 @@ class FieldAggregatorsTest(GraphModuleTest):
     def test_output_values(self, aggregator, expected):
         input_graph = self._get_input_graph()
         aggregated_out = aggregator(input_graph)
+        aggregated_out = aggregated_out.numpy()
         self.assertNDArrayNear(
             np.array(expected, dtype=np.float32), aggregated_out, err=1e-4)
 
