@@ -458,8 +458,8 @@ class EdgeBlockTest(GraphModuleTest):
         """Verifies the variable names and shapes created by an EdgeBlock."""
         output_size = 10
         expected_var_shapes_dict = {
-            "edge_block/mlp/linear_0/b:0": [output_size],
-            "edge_block/mlp/linear_0/w:0": [expected_first_dim_w, output_size]}
+            "_edge_model.mlp.0.bias": [output_size],
+            "_edge_model.mlp.0.weight": [expected_first_dim_w, output_size]}
 
         input_graph = self._get_input_graph()
 
@@ -471,9 +471,8 @@ class EdgeBlockTest(GraphModuleTest):
             use_sender_nodes=use_sender_nodes,
             use_globals=use_globals)
         edge_block(input_graph)
-
-        variables = edge_block.get_variables()
-        var_shapes_dict = {var.name: list(var.shape) for var in variables}
+        variables = edge_block.state_dict()
+        var_shapes_dict = {var: list(reversed(variables[var].shape)) for var in variables}
         self.assertDictEqual(expected_var_shapes_dict, var_shapes_dict)
 
     @parameterized.named_parameters(
@@ -1084,6 +1083,8 @@ class CommonBlockTests(GraphModuleTest):
     )
     def test_dtypes(self, data_dtype, indices_dtype, block_constructor):
         """Checks that all the output types are as expected for blocks."""
+        default_type = torch.get_default_dtype()
+        torch.set_default_dtype(data_dtype)
         input_graph = self._get_input_graph()
         input_graph = input_graph.map(lambda v: v.type(data_dtype),
                                       ["nodes", "edges", "globals"])
@@ -1096,7 +1097,7 @@ class CommonBlockTests(GraphModuleTest):
             self.assertEqual(data_dtype, getattr(output, field).dtype)
         for field in ["receivers", "senders"]:
             self.assertEqual(indices_dtype, getattr(output, field).dtype)
-
+        torch.set_default_dtype(default_type)
 
 if __name__ == "__main__":
     unittest.main()
