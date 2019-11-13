@@ -146,6 +146,7 @@ class BroadcastersTest(GraphModuleTest):
         input_graph = utils_torch.data_dicts_to_graphs_tuple(
             [SMALL_GRAPH_1, SMALL_GRAPH_2])
         broadcasted_out = broadcaster(input_graph)
+        broadcasted_out = broadcasted_out.numpy()
         self.assertNDArrayNear(
             np.array(expected, dtype=np.float32), broadcasted_out, err=1e-4)
 
@@ -166,6 +167,7 @@ class BroadcastersTest(GraphModuleTest):
         input_graph = input_graph.map(
             lambda v: torch.reshape(v, [v.get_shape().as_list()[0]] + [2, -1]))
         broadcasted_out = broadcaster(input_graph)
+        broadcasted_out = broadcasted_out.numpy()
         self.assertNDArrayNear(
             np.reshape(np.array(expected, dtype=np.float32),
                        [len(expected)] + [2, -1]),
