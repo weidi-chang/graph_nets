@@ -141,8 +141,8 @@ def _concatenate_data_dicts(data_dicts):
     # Add offsets to the receiver and sender indices.
     if dct[RECEIVERS] is not None:
         offset = _compute_stacked_offsets(dct[N_NODE], dct[N_EDGE])
-        dct[RECEIVERS] += offset.int()
-        dct[SENDERS] += offset.int()
+        dct[RECEIVERS] += offset.long()
+        dct[SENDERS] += offset.long()
 
     return dct
 
