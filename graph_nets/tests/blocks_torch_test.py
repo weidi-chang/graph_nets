@@ -326,7 +326,7 @@ class FieldAggregatorsTest(GraphModuleTest):
     def test_output_values_larger_rank(self, aggregator, expected):
         input_graph = self._get_input_graph()
         input_graph = input_graph.map(
-            lambda v: torch.reshape(v, [v.get_shape().as_list()[0]] + [2, -1]))
+            lambda v: torch.reshape(v, [list(v.shape)[0]] + [2, -1]))
         aggregated = aggregator(input_graph)
         self.assertNDArrayNear(
             np.reshape(np.array(expected, dtype=np.float32),
@@ -440,7 +440,7 @@ class EdgeBlockTest(GraphModuleTest):
         edge_block(input_graph)
 
         variables = edge_block.get_variables()
-        var_shapes_dict = {var.name: var.get_shape().as_list() for var in variables}
+        var_shapes_dict = {var.name: list(var.shape) for var in variables}
         self.assertDictEqual(expected_var_shapes_dict, var_shapes_dict)
 
     @parameterized.named_parameters(
@@ -656,7 +656,7 @@ class NodeBlockTest(GraphModuleTest):
         node_block(input_graph)
 
         variables = node_block.get_variables()
-        var_shapes_dict = {var.name: var.get_shape().as_list() for var in variables}
+        var_shapes_dict = {var.name: list(var.shape) for var in variables}
         self.assertDictEqual(expected_var_shapes_dict, var_shapes_dict)
 
     @parameterized.named_parameters(
@@ -885,7 +885,7 @@ class GlobalBlockTest(GraphModuleTest):
         global_block(input_graph)
 
         variables = global_block.get_variables()
-        var_shapes_dict = {var.name: var.get_shape().as_list() for var in variables}
+        var_shapes_dict = {var.name: list(var.shape) for var in variables}
         self.assertDictEqual(expected_var_shapes_dict, var_shapes_dict)
 
     @parameterized.named_parameters(
