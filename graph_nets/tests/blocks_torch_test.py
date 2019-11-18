@@ -81,6 +81,7 @@ class MLP(nn.Module):
             self.mlp = nn.Sequential(*layers)
         return self.mlp(input)
 
+
 class Conv2D(nn.Module):
     def __init__(self, output_channels, kernel_shape):
         super(Conv2D, self).__init__()

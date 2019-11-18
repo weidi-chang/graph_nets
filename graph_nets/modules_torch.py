@@ -108,7 +108,7 @@ class InteractionNetwork(nn.Module):
         tf.math.unsorted_segment_sum.
       name: The module name.
     """
-    super(InteractionNetwork, self).__init__(name=name)
+    super(InteractionNetwork, self).__init__()
 
     self._edge_block = blocks_torch.EdgeBlock(
         edge_model_fn=edge_model_fn, use_globals=False)
@@ -165,7 +165,7 @@ class RelationNetwork(nn.Module):
         tf.math.unsorted_segment_sum.
       name: The module name.
     """
-    super(RelationNetwork, self).__init__(name=name)
+    super(RelationNetwork, self).__init__()
 
     self._edge_block = blocks_torch.EdgeBlock(
         edge_model_fn=edge_model_fn,
@@ -271,7 +271,7 @@ class GraphNetwork(nn.Module):
         `reducer`).
       name: The module name.
     """
-    super(GraphNetwork, self).__init__(name=name)
+    super(GraphNetwork, self).__init__()
     edge_block_opt = _make_default_edge_block_opt(edge_block_opt)
     node_block_opt = _make_default_node_block_opt(node_block_opt, reducer)
     global_block_opt = _make_default_global_block_opt(global_block_opt, reducer)
@@ -327,7 +327,7 @@ class GraphIndependent(nn.Module):
         will pass through inputs (the default).
       name: The module name.
     """
-    super(GraphIndependent, self).__init__(name=name)
+    super(GraphIndependent, self).__init__()
 
     # The use of snt.Module below is to ensure the ops and variables that
     # result from the edge/node/global_model_fns are scoped analogous to how
@@ -409,7 +409,7 @@ class DeepSets(nn.Module):
         tf.math.unsorted_segment_sum.
       name: The module name.
     """
-    super(DeepSets, self).__init__(name=name)
+    super(DeepSets, self).__init__()
 
     self._node_block = blocks_torch.NodeBlock(
         node_model_fn=node_model_fn,
@@ -481,7 +481,7 @@ class CommNet(nn.Module):
         tf.math.unsorted_segment_sum.
       name: The module name.
     """
-    super(CommNet, self).__init__(name=name)
+    super(CommNet, self).__init__()
 
     # Computes $\Psi_{com}(x_j)$ in Eq. (2) of 1706.06122
     self._edge_block = blocks_torch.EdgeBlock(
@@ -612,7 +612,7 @@ class SelfAttention(nn.Module):
     Args:
       name: The module name.
     """
-    super(SelfAttention, self).__init__(name=name)
+    super(SelfAttention, self).__init__()
     self._normalizer = _unsorted_segment_softmax
 
   def forward(self, node_values, node_keys, node_queries, attention_graph):
