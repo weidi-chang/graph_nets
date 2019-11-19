@@ -279,13 +279,14 @@ class GraphNetworkTest(GraphModuleTest):
     """Verifies variable names and shapes created by a GraphNetwork."""
     name = name if name is not None else "graph_network"
     expected_var_shapes_dict = {
-        name + "/edge_block/mlp/linear_0/b:0": [5],
-        name + "/edge_block/mlp/linear_0/w:0": [4 + 4 + 3, 5],
-        name + "/node_block/mlp/linear_0/b:0": [10],
-        name + "/node_block/mlp/linear_0/w:0": [5 + 2 + 3, 10],
-        name + "/global_block/mlp/linear_0/b:0": [15],
-        name + "/global_block/mlp/linear_0/w:0": [10 + 5 + 3, 15],
+        '_edge_block._edge_model.mlp.0.bias': [5],
+        '_edge_block._edge_model.mlp.0.weight': [4 + 4 + 3, 5],
+        '_node_block._node_model.mlp.0.bias': [10],
+        '_node_block._node_model.mlp.0.weight': [5 + 2 + 3, 10],
+        '_global_block._global_model.mlp.0.bias': [15],
+        '_global_block._global_model.mlp.0.weight': [10 + 5 + 3, 15],
     }
+
     input_graph = self._get_input_graph()
     extra_kwargs = {"name": name} if name else {}
     model = modules_torch.GraphNetwork(
@@ -350,12 +351,12 @@ class GraphNetworkTest(GraphModuleTest):
     expected_nodes = expected_output_node_block.nodes
     expected_globals = expected_output_global_block.globals
 
-    self._assert_all_none_or_all_close(expected_edges.numpy(),
-                                       output_graph.edges.numpy())
-    self._assert_all_none_or_all_close(expected_nodes.numpy(),
-                                       output_graph.nodes.numpy())
-    self._assert_all_none_or_all_close(expected_globals.numpy(),
-                                       output_graph.globals.numpy())
+    self._assert_all_none_or_all_close(expected_edges,
+                                       output_graph.edges)
+    self._assert_all_none_or_all_close(expected_nodes,
+                                       output_graph.nodes)
+    self._assert_all_none_or_all_close(expected_globals,
+                                       output_graph.globals)
 
   def test_dynamic_batch_sizes(self):
     """Checks that all batch sizes are as expected through a GraphNetwork."""
@@ -523,12 +524,12 @@ class GraphNetworkTest(GraphModuleTest):
     expected_nodes = expected_output_node_block.nodes
     expected_globals = expected_output_global_block.globals
 
-    self._assert_all_none_or_all_close(expected_edges.numpy(),
-                                       output_graph.edges.numpy())
-    self._assert_all_none_or_all_close(expected_nodes.numpy(),
-                                       output_graph.nodes.numpy())
-    self._assert_all_none_or_all_close(expected_globals.numpy(),
-                                       output_graph.globals.numpy())
+    self._assert_all_none_or_all_close(expected_edges,
+                                       output_graph.edges)
+    self._assert_all_none_or_all_close(expected_nodes,
+                                       output_graph.nodes)
+    self._assert_all_none_or_all_close(expected_globals,
+                                       output_graph.globals)
 
   @parameterized.named_parameters(
       ("edges only", True, False, False, None, None),
@@ -595,12 +596,12 @@ class GraphNetworkTest(GraphModuleTest):
     expected_nodes = expected_output_node_block.nodes
     expected_globals = expected_output_global_block.globals
 
-    self._assert_all_none_or_all_close(expected_edges.numpy(),
+    self._assert_all_none_or_all_close(expected_edges,
                                        output_graph.edges)
-    self._assert_all_none_or_all_close(expected_nodes.numpy(),
-                                       output_graph.nodes.numpy())
-    self._assert_all_none_or_all_close(expected_globals.numpy(),
-                                       output_graph.globals.numpy())
+    self._assert_all_none_or_all_close(expected_nodes,
+                                       output_graph.nodes)
+    self._assert_all_none_or_all_close(expected_globals,
+                                       output_graph.globals)
 
   def test_higher_rank_outputs(self):
     """Tests that a graph net can be build with higher rank inputs/outputs."""
@@ -660,10 +661,10 @@ class InteractionNetworkTest(GraphModuleTest):
     """Verifies variable names and shapes created by an InteractionNetwork."""
     name = name if name is not None else "interaction_network"
     expected_var_shapes_dict = {
-        name + "/edge_block/linear/b:0": [5],
-        name + "/edge_block/linear/w:0": [2 + 2 + 4, 5],
-        name + "/node_block/linear/b:0": [10],
-        name + "/node_block/linear/w:0": [5 + 2, 10],
+        '_edge_block._edge_model.linear_model.bias': [5],
+        '_edge_block._edge_model.linear_model.weight': [8, 5],
+        '_node_block._node_model.linear_model.bias': [10],
+        '_node_block._node_model.linear_model.weight': [7, 10],
     }
     input_graph = utils_torch.data_dicts_to_graphs_tuple([SMALL_GRAPH_1])
     model = self._get_model(name=name)
@@ -713,8 +714,8 @@ class InteractionNetworkTest(GraphModuleTest):
     expected_edges = expected_output_edge_block.edges
     expected_nodes = expected_output_node_block.nodes
 
-    self._assert_all_none_or_all_close(expected_edges.numpy(), actual_edges.numpy())
-    self._assert_all_none_or_all_close(expected_nodes.numpy(), actual_nodes.numpy())
+    self._assert_all_none_or_all_close(expected_edges, actual_edges)
+    self._assert_all_none_or_all_close(expected_nodes, actual_nodes)
 
   @parameterized.named_parameters(
       ("no nodes", ["nodes"],),
@@ -778,10 +779,10 @@ class RelationNetworkTest(GraphModuleTest):
     """Verifies variable names and shapes created by a RelationNetwork."""
     name = name if name is not None else "relation_network"
     expected_var_shapes_dict = {
-        name + "/edge_block/linear/b:0": [5],
-        name + "/edge_block/linear/w:0": [2 + 2, 5],
-        name + "/global_block/linear/b:0": [15],
-        name + "/global_block/linear/w:0": [5, 15],
+        '_edge_block._edge_model.linear_model.bias': [5],
+        '_edge_block._edge_model.linear_model.weight': [4, 5],
+        '_global_block._global_model.linear_model.bias': [15],
+        '_global_block._global_model.linear_model.weight': [5, 15],
     }
     input_graph = utils_torch.data_dicts_to_graphs_tuple([SMALL_GRAPH_1])
     model = self._get_model(name=name)
@@ -829,7 +830,7 @@ class RelationNetworkTest(GraphModuleTest):
     self.assertEqual(input_graph.edges, output_graph.edges)
     self.assertEqual(input_graph.nodes, output_graph.nodes)
 
-    self._assert_all_none_or_all_close(output_graph.globals.numpy(), expected_output_global_block.globals.numpy())
+    self._assert_all_none_or_all_close(output_graph.globals, expected_output_global_block.globals)
 
   @parameterized.named_parameters(
       ("no nodes", ["nodes"],), ("no edges", ["edges", "receivers", "senders"],)
@@ -875,10 +876,10 @@ class DeepSetsTest(GraphModuleTest):
     """Verifies variable names and shapes created by a DeepSets network."""
     name = name if name is not None else "deep_sets"
     expected_var_shapes_dict = {
-        name + "/node_block/linear/b:0": [5],
-        name + "/node_block/linear/w:0": [2 + 3, 5],
-        name + "/global_block/linear/b:0": [15],
-        name + "/global_block/linear/w:0": [5, 15],
+        '_global_block._global_model.linear_model.bias': [15],
+        '_global_block._global_model.linear_model.weight': [5, 15],
+        '_node_block._node_model.linear_model.bias': [5],
+        '_node_block._node_model.linear_model.weight': [5, 5],
     }
     input_graph = self._get_input_graph()
     model = self._get_model(name=name)
@@ -1098,12 +1099,12 @@ class SelfAttentionTest(GraphModuleTest):
       kwargs["name"] = name
     return modules_torch.CommNet(**kwargs)
 
-  LOGITS_1D = [np.log(2), np.log(2), np.log(2), 0., 0., 0.]
-  SOFTMAX_1D = [1., 2/3, 0.5, 0.25, 0.25, 1/3]
-  LOGITS_2D = [[np.log(2), 1.], [np.log(2), 1.], [np.log(2), 1.],
-               [0., 1.], [0., 1.], [0., 1.]]
-  SOFTMAX_2D = [[1., 1.], [2/3, 0.5], [1/2, 1/3],
-                [1/4, 1/3], [1/4, 1/3], [1/3, 0.5]]
+  LOGITS_1D = torch.tensor([np.log(2), np.log(2), np.log(2), 0., 0., 0.])
+  SOFTMAX_1D = torch.tensor([1., 2/3, 0.5, 0.25, 0.25, 1/3])
+  LOGITS_2D = torch.tensor([[np.log(2), 1.], [np.log(2), 1.], [np.log(2), 1.],
+               [0., 1.], [0., 1.], [0., 1.]])
+  SOFTMAX_2D = torch.tensor([[1., 1.], [2/3, 0.5], [1/2, 1/3],
+                [1/4, 1/3], [1/4, 1/3], [1/3, 0.5]])
   SENDERS = [0, 2, 2, 3, 4, 3]
   RECEIVERS = [1, 5, 6, 6, 6, 5]
   N_NODE = [2, 5]
@@ -1122,7 +1123,7 @@ class SelfAttentionTest(GraphModuleTest):
     actual_softmax = modules_torch._unsorted_segment_softmax(
         data, segment_ids, num_segments)
 
-    self.assertAllClose(expected_softmax, actual_softmax.numpy())
+    self.assertAllClose(expected_softmax, actual_softmax)
 
   @parameterized.named_parameters(
       ("one dimensional", LOGITS_1D, SOFTMAX_1D,
@@ -1133,7 +1134,7 @@ class SelfAttentionTest(GraphModuleTest):
                                      expected_normalized, normalizer):
     graph = graphs.GraphsTuple(
         nodes=None,
-        edges=logits,
+        edges=torch.tensor(logits, dtype=torch.float32),
         globals=None,
         receivers=torch.tensor(self.RECEIVERS, dtype=torch.int64),
         senders=torch.tensor(self.SENDERS, dtype=torch.int64),
@@ -1142,8 +1143,7 @@ class SelfAttentionTest(GraphModuleTest):
     )
     actual_normalized_edges = modules_torch._received_edges_normalizer(
         graph, normalizer)
-
-    self.assertAllClose(expected_normalized, actual_normalized_edges.numpy())
+    self.assertAllClose(expected_normalized, actual_normalized_edges)
 
   def test_self_attention(self):
     # Just one feature per node.
@@ -1189,7 +1189,7 @@ class SelfAttentionTest(GraphModuleTest):
     mixed_nodes = output_graph.nodes
 
 
-    expected_mixed_nodes = [
+    expected_mixed_nodes = torch.tensor([
         [[0., 0.], [0., 0.]],  # Does not receive any edges
         [[1., 0.1], [-1., -0.1]],  # Only receives from n0.
         [[0., 0.], [0., 0.]],  # Does not receive any edges
@@ -1199,9 +1199,9 @@ class SelfAttentionTest(GraphModuleTest):
          [-15/4, -15/4*0.1]],  # Head two, receives from n2(1/4) n3(3/4)
         [[20/5, 20/5*0.1],   # Head one, receives from n2(2/5) n3(1/5) n4(2/5)
          [-28/7, -28/7*0.1]],  # Head two, receives from n2(3/7) n3(1/7) n4(3/7)
-    ]
+    ])
 
-    self.assertAllClose(expected_mixed_nodes, mixed_nodes.numpy())
+    self.assertAllClose(expected_mixed_nodes, mixed_nodes)
 
 if __name__ == "__main__":
     unittest.main()

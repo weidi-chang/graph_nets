@@ -548,13 +548,13 @@ def _unsorted_segment_softmax(data,
     A tensor with the same shape as `data` after applying the softmax operation.
 
   """
-  segment_maxes = scatter_max(data, segment_ids, num_segments)
-  maxes = torch.gather(segment_maxes, segment_ids)
+  segment_maxes, _ = scatter_max(data, segment_ids, dim=0, dim_size=num_segments)
+  maxes = segment_maxes[segment_ids]
   # Possibly refactor to `tf.stop_gradient(maxes)` for better performance.
   data -= maxes
   exp_data = torch.exp(data)
-  segment_sum_exp_data = scatter_add(exp_data, segment_ids, num_segments)
-  sum_exp_data = torch.gather(segment_sum_exp_data, segment_ids)
+  segment_sum_exp_data = scatter_add(exp_data, segment_ids, dim=0, dim_size=num_segments)
+  sum_exp_data = segment_sum_exp_data[segment_ids]
   return exp_data / sum_exp_data
 
 
