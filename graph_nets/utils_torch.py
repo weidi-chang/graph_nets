@@ -75,7 +75,7 @@ def _to_compatible_data_dicts(data_dicts):
             if v is None:
                 result[k] = None
             else:
-                dtype = torch.long if k in [SENDERS, RECEIVERS, N_NODE, N_EDGE] else None
+                dtype = torch.long if k in [SENDERS, RECEIVERS, N_NODE, N_EDGE] else torch.float32
                 result[k] = torch.tensor(v, dtype=dtype)
         results.append(result)
     return results
