@@ -674,7 +674,7 @@ class InteractionNetworkTest(GraphModuleTest):
   @parameterized.named_parameters(
       ("default", torch_scatter.scatter_add,),
       ("max or zero reduction", blocks_torch.unsorted_segment_max_or_zero,),
-      ("no globals", torch_scatter.scatter_add, "globals"),
+      ("no globals", torch_scatter.scatter_add, "globals",),
   )
   def test_same_as_subblocks(self, reducer, none_field=None):
     """Compares the output to explicit subblocks output.
@@ -684,7 +684,7 @@ class InteractionNetworkTest(GraphModuleTest):
       none_field: (string, default=None) If not None, the corresponding field
         is removed from the input graph.
     """
-    input_graph = self._get_input_graph(none_field)
+    input_graph = self._get_input_graph([none_field] if none_field is not None else none_field)
 
     interaction_network = self._get_model(reducer)
     output_graph = interaction_network(input_graph)
@@ -803,7 +803,7 @@ class RelationNetworkTest(GraphModuleTest):
       none_field: (string, default=None) If not None, the corresponding field
         is removed from the input graph.
     """
-    input_graph = self._get_input_graph(none_field)
+    input_graph = self._get_input_graph([none_field] if none_field is not None else none_field)
     relation_network = self._get_model(reducer)
     output_graph = relation_network(input_graph)
 
@@ -1023,7 +1023,7 @@ class CommNetTest(GraphModuleTest):
       none_field: (string, default=None) If not None, the corresponding field
         is removed from the input graph.
     """
-    input_graph = self._get_input_graph(none_field)
+    input_graph = self._get_input_graph([none_field] if none_field is not None else none_field)
 
     comm_net = self._get_model(reducer)
     output_graph = comm_net(input_graph)
