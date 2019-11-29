@@ -361,16 +361,13 @@ class GraphNetworkTest(GraphModuleTest):
   def test_dynamic_batch_sizes(self):
     """Checks that all batch sizes are as expected through a GraphNetwork."""
     input_graph = self._get_input_graph()
-    placeholders = input_graph.map(_mask_leading_dimension, graphs.ALL_FIELDS)
+    placeholders = input_graph.map(lambda field: field.unsqueeze(0), graphs.ALL_FIELDS)
     model = self._get_model()
     output = model(placeholders)
-    with self.test_session() as sess:
-      sess.run(tf.global_variables_initializer())
-      other_input_graph = utils_np.data_dicts_to_graphs_tuple(
+    other_input_graph = utils_np.data_dicts_to_graphs_tuple(
           [SMALL_GRAPH_1, SMALL_GRAPH_2])
-      actual = sess.run(output, {placeholders: other_input_graph})
     for k, v in other_input_graph._asdict().items():
-      self.assertEqual(v.shape[0], getattr(actual, k).shape[0])
+      self.assertEqual(v.shape[0], getattr(output, k).shape[0])
 
   @parameterized.named_parameters(
       ("float64 data", torch.float64, torch.int64),
@@ -714,8 +711,8 @@ class InteractionNetworkTest(GraphModuleTest):
     expected_edges = expected_output_edge_block.edges
     expected_nodes = expected_output_node_block.nodes
 
-    self._assert_all_none_or_all_close(expected_edges, actual_edges)
-    self._assert_all_none_or_all_close(expected_nodes, actual_nodes)
+    self._assert_all_none_or_all_close(expected_edges, edges_out)
+    self._assert_all_none_or_all_close(expected_nodes, nodes_out)
 
   @parameterized.named_parameters(
       ("no nodes", ["nodes"],),
